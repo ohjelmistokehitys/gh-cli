@@ -1,0 +1,7 @@
+{
+  "devDependencies": {
+    "@types/node": "^26.4.0",
+    "zx": "^8.8.5-lite"
+  },
+  "type": "module"
+}

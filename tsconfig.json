@@ -1,0 +1,17 @@
+/* Visit https://aka.ms/tsconfig to read more about this file */
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "nodenext",
+        "types": [
+            "node"
+        ],
+        "esModuleInterop": true,
+        "strict": true,
+        "moduleResolution": "nodenext",
+        "erasableSyntaxOnly": true,
+        "rewriteRelativeImportExtensions": true,
+        "verbatimModuleSyntax": true,
+        "noEmit": true
+    }
+}
