@@ -1,0 +1,17 @@
+[
+    {
+        "name": "TypeScript postalcodes",
+        "repo": "typescript-postalcodes",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "TypeScript users & posts",
+        "repo": "typescript-users-and-posts",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "TypeScript users & posts v2",
+        "repo": "typescript-users-and-posts-v2",
+        "workflow": "classroom.yml"
+    }
+]

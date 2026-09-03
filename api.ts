@@ -12,9 +12,14 @@ export function listRepositories(org: string): RepoMap {
     }, {} as RepoMap);
 }
 
-export function getLatestWorkflowRun(repoWithOwner: string): WorkflowRun | undefined {
-    const { stdout } = $.sync`gh run list --repo ${repoWithOwner} --json workflowName,databaseId,createdAt,status,url --limit 1`;
-    return JSON.parse(stdout)?.[0] as WorkflowRun;
+export function getLatestWorkflowRun(repo: RepoDetails): WorkflowRun | undefined {
+    try {
+        const { stdout } = $.sync`gh run list --repo ${repo.nameWithOwner} --workflow ${repo.exercise?.workflow ?? 'classroom.yml'} --json workflowName,databaseId,createdAt,status,url --limit 1`;
+        return JSON.parse(stdout)?.[0] as WorkflowRun;
+    } catch (e) {
+        console.error(e);
+        return undefined;
+    }
 }
 
 /**

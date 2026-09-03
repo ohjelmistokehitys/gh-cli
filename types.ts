@@ -28,4 +28,6 @@ export type Exercise = {
     name: string;
     // The name of the repository that this exercise is either forked or created from
     repo: string;
+    /** Name of the .yml file containing the autograding workflow */
+    workflow?: string;
 };
