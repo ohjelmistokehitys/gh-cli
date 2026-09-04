@@ -1,8 +1,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import type { Exercise, RepoMap } from "./types.ts";
+import type { Exercise, RepoMap, Student } from "./types.ts";
 
-export function loadStudents(org: string): { name: string; email: string; github: string }[] {
+export function loadStudents(org: string): Student[] {
     const dataFilePath = path.join(process.cwd(), org, `students.json`);
     return JSON.parse(readFileSync(dataFilePath, 'utf8').trim());
 }

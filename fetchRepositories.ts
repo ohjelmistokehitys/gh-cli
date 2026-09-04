@@ -1,83 +1,81 @@
 import { getLatestWorkflowRun, getPoints, listRepositories } from './api.ts';
 import { loadExercises, loadRepositoriesFile, writeRepositoriesToFile } from './filesystem.ts';
 
-const org = process.argv[2];
+const orgParam = process.argv[2];
 
-if (!org) {
+if (!orgParam) {
     console.error("Missing organization argument.");
     process.exit(1);
 }
 
-let repos = loadRepositoriesFile(org);
-let exercises = loadExercises(org);
+function main(org: string) {
+    let repos = loadRepositoriesFile(org);
+    console.log(`Loaded ${Object.keys(repos).length} repositories for ${org} from file`);
 
-console.log(`Loaded ${Object.keys(repos).length} repositories for ${org} from file`);
+    const incomingRepos = listRepositories(org);
+    console.log(`Fetched ${Object.keys(incomingRepos).length} repositories from GitHub API`);
 
-const fetchedRepos = listRepositories(org);
-console.log(`Fetched ${Object.keys(fetchedRepos).length} repositories from GitHub API`);
+    let exercises = loadExercises(org);
 
-// Add new repositories and update existing ones based on the pushedAt timestamp
-Object.entries(fetchedRepos)
-    .filter(([nameWithOwner, repo]) => {
+    incomingRepos
+        .filter((repo) => {
+            // finds the exercise that is used as the template or parent for the repository
+            const exercise = exercises.find(ex => ex.repo === repo.parent?.name || ex.repo === repo.templateRepository?.name);
 
-        // finds the exercise that is used as the template or parent for the repository
-        const exercise = exercises.find(ex => ex.repo === repo.parent?.name || ex.repo === repo.templateRepository?.name);
+            if (!exercise) {
+                // possibly a template repository, course website or non-exercise repo, so we skip it
+                console.warn(`⚠️ No exercise matches repository: ${repo.nameWithOwner}`);
+                return false;
+            }
 
-        if (exercise) {
             repo.exercise = exercise;
             return true;
-        } else {
-            console.warn(`⚠️ No exercise matches for repository: ${nameWithOwner}`);
-            return false;
-        }
-    }).forEach(([nameWithOwner, repo]) => {
+        })
+        .forEach(repo => {
+            // check if the repository already exists in the local file
+            const existingRepo = repos[repo.nameWithOwner];
 
-        const existingRepo = repos[nameWithOwner];
+            // use the incoming repo if it is new or has a new push since the last time we checked
+            if (!existingRepo || repo.pushedAt !== existingRepo.pushedAt) {
+                repos[repo.nameWithOwner] = repo;
+            }
+        });
 
-        if (!existingRepo) {
-            repos[nameWithOwner] = repo;
+    // get the repositories that require fetching the latest workflow runs
+    const reposNeedingUpdates = Object.values(repos)
+        .filter((repo) => typeof repo.latestWorkflowRun === "undefined");
+
+    console.log(`Fetching latest workflow runs for ${reposNeedingUpdates.length} repositories`);
+
+    reposNeedingUpdates.forEach(repo => {
+        console.log(`Fetching ${repo.nameWithOwner}`);
+
+        // set to null to indicate run was fetched but not found, so we don't fetch it again next time:
+        repo.latestWorkflowRun = getLatestWorkflowRun(repo);
+
+        if (!repo.latestWorkflowRun) {
+            console.warn(`⚠️ No workflow run found for repository: ${repo.nameWithOwner}`);
+            // set to null to indicate it was fetched but not found, so we don't fetch it again next time
+            repo.latestWorkflowRun = null;
             return;
         }
 
-        // Compare pushedAt timestamps and update if the incoming repo is more recent
-        const existingPushedAt = new Date(existingRepo.pushedAt);
-        const incomingPushedAt = new Date(repo.pushedAt);
-
-        if (incomingPushedAt > existingPushedAt) {
-            repos[nameWithOwner] = repo;
+        if (!["completed", "failure", "success"].includes(repo.latestWorkflowRun.status)) {
+            console.warn(`⚠️ Invalid workflow run status for repository: ${repo.nameWithOwner}, status: ${repo.latestWorkflowRun.status}, ${repo.latestWorkflowRun.url}`);
+            return;
         }
+
+        const points = getPoints(repo.nameWithOwner, repo.latestWorkflowRun.databaseId);
+        if (!points) {
+            console.warn(`⚠️ No points found for repository: ${repo.nameWithOwner}, ${repo.latestWorkflowRun.url}`);
+            return;
+        }
+        repo.points = points;
     });
 
-// get the repositories that require fetching the latest workflow runs
-const reposNeedingWorkflowRuns = Object.values(repos)
-    .filter((repo) => typeof repo.latestWorkflowRun === "undefined");
+    writeRepositoriesToFile(repos, org);
+    console.log(`Written ${Object.keys(repos).length} repositories to file for ${org}`);
 
-console.log(`Fetching latest workflow runs for ${reposNeedingWorkflowRuns.length} repositories`);
+}
 
-reposNeedingWorkflowRuns.forEach(repo => {
-    const latestWorkflowRun = getLatestWorkflowRun(repo);
-    console.log(`Fetching ${repo.nameWithOwner}`);
-
-    // set to null to indicate run was fetched but not found, so we don't fetch it again next time:
-    repo.latestWorkflowRun = latestWorkflowRun ?? null;
-
-    if (!latestWorkflowRun) {
-        console.warn(`⚠️ No workflow run found for repository: ${repo.nameWithOwner}`);
-        return;
-    }
-
-    if (!["completed", "failure", "success"].includes(latestWorkflowRun.status)) {
-        console.warn(`⚠️ Invalid workflow run status for repository: ${repo.nameWithOwner}, status: ${latestWorkflowRun.status}, ${latestWorkflowRun.url}`);
-        return;
-    }
-
-    const points = getPoints(repo.nameWithOwner, latestWorkflowRun.databaseId);
-    if (!points) {
-        console.warn(`⚠️ No points found for repository: ${repo.nameWithOwner}, workflow run ID: ${latestWorkflowRun.databaseId}, ${latestWorkflowRun.url}`);
-        return;
-    }
-    repo.points = points;
-});
-
-writeRepositoriesToFile(repos, org);
-console.log(`Written ${Object.keys(repos).length} repositories to file for ${org}`);
+main(orgParam);

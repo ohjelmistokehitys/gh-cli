@@ -31,3 +31,9 @@ export type Exercise = {
     /** Name of the .yml file containing the autograding workflow */
     workflow?: string;
 };
+
+export type Student = {
+    name: string;
+    email: string;
+    github: string;
+};

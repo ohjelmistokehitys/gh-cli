@@ -1,15 +1,10 @@
 import { $ } from 'zx';
-import type { Points, RepoDetails, RepoMap, WorkflowRun } from "./types.ts";
+import type { Points, RepoDetails, WorkflowRun } from "./types.ts";
 
 
-export function listRepositories(org: string): RepoMap {
+export function listRepositories(org: string): RepoDetails[] {
     const { stdout } = $.sync`gh repo list ${org} --limit 1000 --json nameWithOwner,pushedAt,templateRepository,parent`;
-    const result = JSON.parse(stdout) as RepoDetails[];
-
-    return result.reduce((acc, curr) => {
-        acc[curr.nameWithOwner] = curr;
-        return acc;
-    }, {} as RepoMap);
+    return JSON.parse(stdout) as RepoDetails[];
 }
 
 export function getLatestWorkflowRun(repo: RepoDetails): WorkflowRun | undefined {
@@ -29,27 +24,25 @@ export function getLatestWorkflowRun(repo: RepoDetails): WorkflowRun | undefined
 export function getPoints(repoWithOwner: string, databaseId: number): Points | null {
     const { stdout } = $.sync`gh run view ${databaseId} --repo ${repoWithOwner}`;
 
-    const jsonMatch = stdout.match(/\{[^\n]*"totalPoints"\s*:\s*\d+[^\n]*"maxPoints"\s*:\s*\d+[^\n]*\}/i);
 
+    const jsonMatch = stdout.match(/\{[^\n]*"totalPoints"\s*:\s*\d+[^\n]*"maxPoints"\s*:\s*\d+[^\n]*\}/i);
     if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]) as any;
 
-        if (typeof parsed.totalPoints === 'number' && typeof parsed.maxPoints === 'number') {
-            return {
-                totalPoints: parsed.totalPoints,
-                maxPoints: parsed.maxPoints,
-            };
-        }
+        return {
+            totalPoints: parsed.totalPoints,
+            maxPoints: parsed.maxPoints,
+        };
     }
 
     const match = stdout.match(/-\s*Points\s+(\d+)\s*\/\s*(\d+)/i);
-
-    if (!match) {
-        return null;
+    if (match) {
+        return {
+            totalPoints: Number(match[1]),
+            maxPoints: Number(match[2]),
+        };
     }
 
-    return {
-        totalPoints: Number(match[1]),
-        maxPoints: Number(match[2]),
-    };
+    // no points? possibly a skipped workflow run when the student didn't yet submit anything.
+    return null;
 }
