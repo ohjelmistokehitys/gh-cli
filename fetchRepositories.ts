@@ -62,10 +62,12 @@ function main(org: string) {
 
         if (!["completed", "failure", "success"].includes(repo.latestWorkflowRun.status)) {
             console.warn(`⚠️ Invalid workflow run status for repository: ${repo.nameWithOwner}, status: ${repo.latestWorkflowRun.status}, ${repo.latestWorkflowRun.url}`);
+            delete repo.latestWorkflowRun;
             return;
         }
 
         const points = getPoints(repo.nameWithOwner, repo.latestWorkflowRun.databaseId);
+
         if (!points) {
             console.warn(`⚠️ No points found for repository: ${repo.nameWithOwner}, ${repo.latestWorkflowRun.url}`);
             return;

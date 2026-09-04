@@ -28,7 +28,7 @@ function main(org: string) {
     }), {} as Record<string, RepoDetails[]>);
 
     Object.values(repositories).forEach(repo => {
-        const student = Object.keys(studentRepositories).find(username => repo.nameWithOwner.toLowerCase().endsWith(username));
+        const student = Object.keys(studentRepositories).find(username => repo.nameWithOwner.toLowerCase().endsWith(username.toLowerCase()));
         if (!student) {
             console.warn(`⚠️ No student matches repository: ${repo.nameWithOwner}`);
             return;
@@ -56,13 +56,14 @@ function main(org: string) {
 
             if (!repo.points) {
                 row.push("0");
-                row.push("No points available");
+                row.push(`No points available. See ${repo.latestWorkflowRun.url}`);
                 continue;
             }
 
-            const scaledPoints = 5 * repo.points.totalPoints / repo.points.maxPoints;
+            const scaleMax = 5;
+            const scaledPoints = scaleMax * (repo.points.totalPoints / repo.points.maxPoints);
             row.push(`${scaledPoints}`);
-            row.push(`${repo.points.totalPoints} / ${repo.points.maxPoints} => ${scaledPoints}. ${repo.latestWorkflowRun.url}`);
+            row.push(`${repo.points.totalPoints} / ${repo.points.maxPoints} => ${scaledPoints} / ${scaleMax}. See ${repo.latestWorkflowRun.url}`);
         }
 
         rows.push(row);
