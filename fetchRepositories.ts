@@ -1,5 +1,5 @@
-import { getLatestWorkflowRun, getPoints, listRepositories } from './api.ts';
-import { loadExercises, loadRepositoriesFile, writeRepositoriesToFile } from './filesystem.ts';
+import { getLatestWorkflowRun, getPoints, listRepositories } from './src/api.ts';
+import { loadExercises, loadRepositoriesFile, writeRepositoriesToFile } from './src/filesystem.ts';
 
 const orgParam = process.argv[2];
 

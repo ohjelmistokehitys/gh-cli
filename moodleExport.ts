@@ -1,5 +1,5 @@
-import { loadExercises, loadRepositoriesFile, loadStudents, writeCsvReport } from "./filesystem.ts";
-import type { RepoDetails } from "./types.ts";
+import { loadExercises, loadRepositoriesFile, loadStudents, writeCsvReport } from "./src/filesystem.ts";
+import type { RepoDetails } from "./src/types.ts";
 
 const orgParam = process.argv[2];
 
@@ -72,7 +72,6 @@ function main(org: string) {
     writeCsvReport(rows, org, "grading.csv");
 
     console.table(rows);
-
 }
 
 

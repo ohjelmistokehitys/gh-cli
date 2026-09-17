@@ -3,7 +3,7 @@ import type { Points, RepoDetails, WorkflowRun } from "./types.ts";
 
 
 export function listRepositories(org: string): RepoDetails[] {
-    const { stdout } = $.sync`gh repo list ${org} --limit 1000 --json nameWithOwner,pushedAt,templateRepository,parent`;
+    const { stdout } = $.sync`gh repo list ${org} --limit 1000 --json name,nameWithOwner,pushedAt,templateRepository,parent`;
     return JSON.parse(stdout) as RepoDetails[];
 }
 
@@ -45,4 +45,42 @@ export function getPoints(repoWithOwner: string, databaseId: number): Points | n
 
     // no points? possibly a skipped workflow run when the student didn't yet submit anything.
     return null;
+}
+
+/**
+ * Adds a user to a team in an organization using the GitHub
+ * CLI. Throws an error if the operation fails.
+ */
+export function addToTeam(org: string, team: string, user: string) {
+    const { stderr, stdout } = $.sync`gh api --method PUT "orgs/${org}/teams/${team}/memberships/${user}"`;
+
+    if (stderr) {
+        console.error(stderr);
+        throw new Error(`Failed to add user ${user} to team ${team} in organization ${org}`);
+    }
+}
+
+/**
+ * Adds a user as a collaborator to a repository in an organization using the GitHub
+ * CLI. Throws an error if the operation fails.
+ */
+export function addUserToRepo(org: string, repo: string, user: string) {
+    const { stderr, stdout } = $.sync`gh api --method PUT "repos/${org}/${repo}/collaborators/${user}"`;
+
+    if (stderr) {
+        console.error(stderr);
+        throw new Error(`Failed to add user ${user} to repository ${repo} in organization ${org}`);
+    }
+}
+/**
+ * Forks a repository in a given organization using the GitHub CLI.
+ * Throws an error if the operation fails.
+ */
+export function forkRepository(org: string, repo: string, forkName: string, user: string) {
+    const { stderr, stdout } = $.sync`gh repo fork ${org}/${repo} --org ${org} --fork-name ${forkName} --clone=false`;
+
+    if (stderr) {
+        console.error(stderr);
+        throw new Error(`Failed to fork repository ${org}/${repo} for user ${user}`);
+    }
 }

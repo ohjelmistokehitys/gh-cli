@@ -13,5 +13,10 @@
         "repo": "docker-commands",
         "name": "Docker Commands",
         "workflow": "classroom.yml"
+    },
+    {
+        "repo": "dockerfile-exercise",
+        "name": "Dockerfile exercise",
+        "workflow": "classroom.yml"
     }
 ]

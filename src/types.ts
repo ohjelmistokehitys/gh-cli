@@ -1,4 +1,5 @@
 export type RepoDetails = {
+    name: string;
     nameWithOwner: string;
     pushedAt: string;
     templateRepository: { name: string } | null;
