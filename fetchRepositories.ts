@@ -1,12 +1,8 @@
 import { getLatestWorkflowRun, getPoints, listRepositories } from './src/api.ts';
+import { readParams } from './src/cli.ts';
 import { loadExercises, loadRepositoriesFile, writeRepositoriesToFile } from './src/filesystem.ts';
 
-const orgParam = process.argv[2];
-
-if (!orgParam) {
-    console.error("Missing organization argument.");
-    process.exit(1);
-}
+const [orgParam] = readParams("organization");
 
 function main(org: string) {
     let repos = loadRepositoriesFile(org);

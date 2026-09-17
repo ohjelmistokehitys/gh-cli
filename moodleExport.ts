@@ -1,14 +1,8 @@
+import { readParams } from "./src/cli.ts";
 import { loadExercises, loadRepositoriesFile, loadStudents, writeCsvReport } from "./src/filesystem.ts";
 import type { RepoDetails } from "./src/types.ts";
 
-const orgParam = process.argv[2];
-
-if (orgParam) {
-    main(orgParam);
-} else {
-    console.error("Missing organization argument.");
-    process.exit(1);
-}
+const [orgParam] = readParams("organization");
 
 function main(org: string) {
     const students = loadStudents(org);
@@ -75,3 +69,4 @@ function main(org: string) {
 }
 
 
+main(orgParam);
