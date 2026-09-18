@@ -4,6 +4,10 @@ import type { RepoDetails } from "./src/types.ts";
 
 const [orgParam] = readParams("organization");
 
+/**
+ * Reads the students, exercises, and repositories for the given organization, and generates a CSV report with the grading information.
+ * Grades are scaled to a maximum of 5 points, and feedback with a link to the latest workflow run is provided for each exercise.
+ */
 function main(org: string) {
     const students = loadStudents(org);
     const exercises = loadExercises(org);

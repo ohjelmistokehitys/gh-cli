@@ -1,12 +1,19 @@
 import { $ } from 'zx';
 import type { Points, RepoDetails, WorkflowRun } from "./types.ts";
 
-
-export function listRepositories(org: string): RepoDetails[] {
-    const { stdout } = $.sync`gh repo list ${org} --limit 1000 --json name,nameWithOwner,pushedAt,templateRepository,parent`;
+/**
+ * Lists all repositories in the given organization using the GitHub CLI. Returns an array of RepoDetails objects.
+ */
+export function listRepositories(org: string, limit = 1000): RepoDetails[] {
+    const { stdout } = $.sync`gh repo list ${org} --limit ${limit} --json name,nameWithOwner,pushedAt,templateRepository,parent`;
     return JSON.parse(stdout) as RepoDetails[];
 }
 
+/**
+ * Returns the latest workflow run for a given repository using the GitHub CLI. Returns undefined if no workflow run is found.
+ *
+ * Workflow run is determined primarily by the exercise's workflow file name, or defaults to 'classroom.yml' if not specified.
+ */
 export function getLatestWorkflowRun(repo: RepoDetails): WorkflowRun | undefined {
     try {
         const { stdout } = $.sync`gh run list --repo ${repo.nameWithOwner} --workflow ${repo.exercise?.workflow ?? 'classroom.yml'} --json workflowName,databaseId,createdAt,status,url --limit 1`;
@@ -72,6 +79,7 @@ export function addUserToRepo(org: string, repo: string, user: string) {
         throw new Error(`Failed to add user ${user} to repository ${repo} in organization ${org}`);
     }
 }
+
 /**
  * Forks a repository in a given organization using the GitHub CLI.
  * Throws an error if the operation fails.

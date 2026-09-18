@@ -1,4 +1,10 @@
 
+/**
+ * Reads command line parameters and validates their presence. If the required parameters are not provided,
+ * it displays a usage message and exits the process.
+ *
+ * If the "--help" or "-h" flag is provided, it displays a usage message and exits the process.
+ */
 export function readParams(...paramNames: string[]): string[] {
     const help = `Usage: node ${process.argv[1].split("/").pop()} ${paramNames.map(n => `<${n}>`).join(" ")}`;
 

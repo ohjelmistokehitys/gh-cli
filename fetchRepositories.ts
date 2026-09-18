@@ -4,6 +4,13 @@ import { loadExercises, loadRepositoriesFile, writeRepositoriesToFile } from './
 
 const [orgParam] = readParams("organization");
 
+/**
+ * Fetches the latest information for each repository in the given organization.
+ *
+ * The function updates the local repositories file with the latest workflow runs and points for each repository.
+ * Repositories that have not been updated since the last fetch are skipped, and repositories that do not match
+ * any exercise are ignored with a warning.
+ */
 function main(org: string) {
     let repos = loadRepositoriesFile(org);
     console.log(`Loaded ${Object.keys(repos).length} repositories for ${org} from file`);
@@ -71,7 +78,7 @@ function main(org: string) {
         repo.points = points;
     });
 
-    writeRepositoriesToFile(repos, org);
+    writeRepositoriesToFile(org, repos);
     console.log(`Written ${Object.keys(repos).length} repositories to file for ${org}`);
 
 }
