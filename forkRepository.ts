@@ -20,7 +20,7 @@ function main(org: string, repo: string, forkPrefix: string) {
             continue;
         }
 
-        forkRepository(org, repo, forkName, student.github);
+        forkRepository(org, repo, forkName);
         addUserToRepo(org, forkName, student.github);
     }
 }

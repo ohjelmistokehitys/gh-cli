@@ -28,7 +28,7 @@ function init(orgName: string) {
 
     fs.mkdirSync(orgPath);
 
-    const exercises: Exercise[] = [{ name: "example-exercise", repo: "example-repo", workflow: "example-workflow.yml" }];
+    const exercises: Exercise[] = [{ name: "Example exercise", repo: "template-repo", owner: "owner-of-template-repo", workflow: "example-workflow.yml" }];
     writeExercises(orgName, exercises);
 
     const repositories = {} as RepoMap;

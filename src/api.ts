@@ -1,26 +1,26 @@
 import { $ } from 'zx';
-import type { Points, RepoDetails, WorkflowRun } from "./types.ts";
+import type { Collaborator, Points, Repo, SubmissionRepo, WorkflowRun } from "./types.ts";
 
 /**
  * Lists all repositories in the given organization using the GitHub CLI. Returns an array of RepoDetails objects.
  */
-export function listRepositories(org: string, limit = 1000): RepoDetails[] {
+export function listRepositories(org: string, limit = 1000): Repo[] {
     const { stdout } = $.sync`gh repo list ${org} --limit ${limit} --json name,nameWithOwner,pushedAt,templateRepository,parent`;
-    return JSON.parse(stdout) as RepoDetails[];
+    return JSON.parse(stdout) as Repo[];
 }
 
 /**
- * Returns the latest workflow run for a given repository using the GitHub CLI. Returns undefined if no workflow run is found.
+ * Returns the latest workflow run for a given repository using the GitHub CLI. Returns null if no workflow run is found.
  *
  * Workflow run is determined primarily by the exercise's workflow file name, or defaults to 'classroom.yml' if not specified.
  */
-export function getLatestWorkflowRun(repo: RepoDetails): WorkflowRun | undefined {
+export function getLatestWorkflowRun(repo: SubmissionRepo): WorkflowRun | null {
     try {
         const { stdout } = $.sync`gh run list --repo ${repo.nameWithOwner} --workflow ${repo.exercise?.workflow ?? 'classroom.yml'} --json workflowName,databaseId,createdAt,status,url --limit 1`;
         return JSON.parse(stdout)?.[0] as WorkflowRun;
     } catch (e) {
         console.error(e);
-        return undefined;
+        return null;
     }
 }
 
@@ -50,7 +50,7 @@ export function getPoints(repoWithOwner: string, databaseId: number): Points | n
         };
     }
 
-    // no points? possibly a skipped workflow run when the student didn't yet submit anything.
+    // no points? possibly a skipped workflow run when the student didn't submit anything yet.
     return null;
 }
 
@@ -84,11 +84,22 @@ export function addUserToRepo(org: string, repo: string, user: string) {
  * Forks a repository in a given organization using the GitHub CLI.
  * Throws an error if the operation fails.
  */
-export function forkRepository(org: string, repo: string, forkName: string, user: string) {
+export function forkRepository(org: string, repo: string, forkName: string) {
     const { stderr, stdout } = $.sync`gh repo fork ${org}/${repo} --org ${org} --fork-name ${forkName} --clone=false`;
 
     if (stderr) {
         console.error(stderr);
-        throw new Error(`Failed to fork repository ${org}/${repo} for user ${user}`);
+        throw new Error(`Failed to fork repository ${org}/${repo} to ${org}/${forkName}`);
     }
+}
+
+/**
+ * Lists the collaborators of a repository in a given organization using the GitHub CLI.
+ * Returns an array of collaborator logins (usernames).
+ */
+export function listCollaborators(org: string, repo: string): string[] {
+    const { stdout } = $.sync`gh api "repos/${org}/${repo}/collaborators"`;
+
+    const response: Collaborator[] = JSON.parse(stdout);
+    return response.map(c => c.login);
 }

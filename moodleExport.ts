@@ -1,6 +1,6 @@
 import { readParams } from "./src/cli.ts";
 import { loadExercises, loadRepositoriesFile, loadStudents, writeCsvReport } from "./src/filesystem.ts";
-import type { RepoDetails, RepoMap, Student } from "./src/types.ts";
+import type { Student, SubmissionMap, SubmissionRepo } from "./src/types.ts";
 
 const [orgParam] = readParams("organization");
 
@@ -30,29 +30,9 @@ function main(org: string) {
         for (const exercise of exercises) {
             const submission = submissions.find(repo => repo.exercise?.name === exercise.name);
 
-            if (!submission) {
-                row.push("0");
-                row.push("No repository found");
-                continue;
-            }
+            const [points, feedback] = getPointsAndFeedback(submission);
 
-            if (!submission.latestWorkflowRun) {
-                row.push("0");
-                row.push("No submission found");
-                continue;
-            }
-
-            if (!submission.points) {
-                row.push("0");
-                row.push(`No points available. See ${submission.latestWorkflowRun.url}`);
-                continue;
-            }
-
-            const scaleMax = 5;
-            const scaledPoints = (scaleMax * (submission.points.totalPoints / submission.points.maxPoints)).toFixed(2);
-
-            row.push(scaledPoints);
-            row.push(`${submission.points.totalPoints} / ${submission.points.maxPoints} => ${scaledPoints} / ${scaleMax}. See ${submission.latestWorkflowRun.url}`);
+            row.push(displayGrade(points), feedback);
         }
 
         rows.push(row);
@@ -69,17 +49,17 @@ main(orgParam);
  * Returns a mapping of student GitHub usernames to their corresponding repositories.
  * If a repository does not match any student, a warning is logged to the console.
  */
-function mapReposToStudents(students: Student[], repositories: RepoMap): Record<string, RepoDetails[]> {
+function mapReposToStudents(students: Student[], repositories: SubmissionMap): Record<string, SubmissionRepo[]> {
     // initialize an empty array for each student to hold their repositories
     const studentRepositories = students.reduce((acc, student) => ({
         ...acc,
         [student.github.toLowerCase()]: []
-    }), {} as Record<string, RepoDetails[]>);
+    }), {} as Record<string, SubmissionRepo[]>);
 
     // Iterate through all repositories and assign them to students based on the username and repo name.
     // Repositories are iterated instead of students to detect and log repositories that do not match any student.
     for (const repo of Object.values(repositories)) {
-        const student = students.find(student => repo.nameWithOwner.toLowerCase().endsWith(student.github.toLowerCase()));
+        const student = students.find(student => repo.studentUsername?.toLowerCase() === student.github.toLowerCase());
         if (student) {
             studentRepositories[student.github.toLowerCase()].push(repo);
         } else {
@@ -90,3 +70,35 @@ function mapReposToStudents(students: Student[], repositories: RepoMap): Record<
     return studentRepositories;
 }
 
+/**
+ * Returns the scaled points and feedback for a given submission. If the submission is undefined,
+ * or if there is no latest workflow run or points available, appropriate feedback is returned.
+ */
+function getPointsAndFeedback(submission: SubmissionRepo | undefined): [number, string] {
+    if (!submission) {
+        return [0, "No repository found"];
+    }
+
+    if (!submission.latestWorkflowRun) {
+        return [0, "No submission found"];
+    }
+
+    if (!submission.points) {
+        return [0, `No points available. See ${submission.latestWorkflowRun.url}`];
+    }
+
+    const scaleMax = 5;
+    const scaledPoints = (scaleMax * (submission.points.totalPoints / submission.points.maxPoints));
+
+    return [
+        scaledPoints,
+        `${submission.points.totalPoints} / ${submission.points.maxPoints} => ${displayGrade(scaledPoints)} / ${scaleMax}. See ${submission.latestWorkflowRun.url}`
+    ];
+}
+
+/**
+ * Formats a grade to two decimal places, removing trailing zeros.
+ */
+function displayGrade(grade: number): string {
+    return grade.toFixed(2).replace('.00', '');
+}

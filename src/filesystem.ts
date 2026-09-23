@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import type { Exercise, RepoMap, Student } from "./types.ts";
+import type { Exercise, Student, SubmissionMap } from "./types.ts";
 
 /**
  * Reads the students.json file for the given organization and returns an array of Student objects.
@@ -19,17 +19,17 @@ export function writeStudents(org: string, students: Student[]): void {
 }
 
 /**
- * Loads the repositories.json file for the given organization and returns a RepoMap object.
+ * Loads the repositories.json file for the given organization and returns a SubmissionMap object.
  */
-export function loadRepositoriesFile(org: string): RepoMap {
+export function loadRepositoriesFile(org: string): SubmissionMap {
     const dataFilePath = path.join(process.cwd(), org, `repos.json`);
     return JSON.parse(readFileSync(dataFilePath, 'utf8'));
 }
 
 /**
- * Writes the given RepoMap to the repositories.json file for the given organization.
+ * Writes the given SubmissionMap to the repositories.json file for the given organization.
  */
-export function writeRepositoriesToFile(org: string, repos: RepoMap): void {
+export function writeRepositoriesToFile(org: string, repos: SubmissionMap): void {
     const dataFilePath = path.join(process.cwd(), org, `repos.json`);
     writeFileSync(dataFilePath, JSON.stringify(repos, null, 4), 'utf8');
 }

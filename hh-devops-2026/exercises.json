@@ -1,22 +1,32 @@
 [
     {
-        "repo": "linux-commands",
         "name": "Linux Commands",
+        "repo": "linux-commands",
+        "owner": "ohjelmistokehitys",
         "workflow": "classroom.yml"
     },
     {
-        "repo": "merge-exercise-master",
         "name": "Merge Exercise",
+        "repo": "merge-exercise-master",
+        "owner": "ohjelmistokehitys",
         "workflow": "autograding.yml"
     },
     {
         "repo": "docker-commands",
         "name": "Docker Commands",
+        "owner": "ohjelmistokehitys",
         "workflow": "classroom.yml"
     },
     {
         "repo": "dockerfile-exercise",
         "name": "Dockerfile exercise",
+        "owner": "ohjelmistokehitys",
+        "workflow": "classroom.yml"
+    },
+    {
+        "repo": "docker-compose-postgresql",
+        "name": "Docker compose postgresql",
+        "owner": "ohjelmistokehitys",
         "workflow": "classroom.yml"
     }
 ]

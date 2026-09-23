@@ -2,16 +2,43 @@
     {
         "name": "TypeScript postalcodes",
         "repo": "typescript-postalcodes",
+        "owner": "ohjelmistokehitys",
         "workflow": "classroom.yml"
     },
     {
         "name": "TypeScript users & posts",
         "repo": "typescript-users-and-posts",
+        "owner": "ohjelmistokehitys",
         "workflow": "classroom.yml"
     },
     {
         "name": "TypeScript users & posts v2",
         "repo": "typescript-users-and-posts-v2",
+        "owner": "ohjelmistokehitys",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "Data-visualization-ChartJS",
+        "repo": "Data-visualization-ChartJS",
+        "owner": "harjoitukset-2026",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "Node package exercise",
+        "repo": "node-package-exercise",
+        "owner": "ohjelmistokehitys",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "Serverless color converter",
+        "repo": "serverless-color-converter",
+        "owner": "ohjelmistokehitys",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "MQTT map",
+        "repo": "mqtt-map",
+        "owner": "ohjelmistokehitys",
         "workflow": "classroom.yml"
     }
 ]

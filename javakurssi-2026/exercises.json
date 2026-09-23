@@ -1,0 +1,62 @@
+[
+    {
+        "name": "Git hello world",
+        "repo": "git-hello-world",
+        "owner": "ohjelmointi2",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "Warming up",
+        "repo": "warming-up",
+        "owner": "ohjelmointi2",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "Map-tietorakenne",
+        "repo": "map-exercises",
+        "owner": "ohjelmointi2",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "Yksikkötestaus JUnit-työkalulla",
+        "repo": "junit-exercise",
+        "owner": "ohjelmointi2",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "Perintä ja rajapinnat",
+        "repo": "inheritance-interfaces",
+        "owner": "ohjelmointi2",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "Streamit ja lambdat",
+        "repo": "streams-and-lambdas",
+        "owner": "ohjelmointi2",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "SQL-tietokannat",
+        "repo": "sql-databases",
+        "owner": "ohjelmointi2",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "Tietorakenteet ja algoritmit",
+        "repo": "sorting-and-filtering",
+        "owner": "ohjelmointi2",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "Commit History",
+        "repo": "commit-history",
+        "owner": "ohjelmointi2",
+        "workflow": "classroom.yml"
+    },
+    {
+        "name": "Extra: Generics and sudoku",
+        "repo": "generics-and-sudoku",
+        "owner": "ohjelmointi2",
+        "workflow": "classroom.yml"
+    }
+]
