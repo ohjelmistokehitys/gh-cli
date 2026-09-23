@@ -15,8 +15,13 @@ export function listRepositories(org: string, limit = 1000): Repo[] {
  * Workflow run is determined primarily by the exercise's workflow file name, or defaults to 'classroom.yml' if not specified.
  */
 export function getLatestWorkflowRun(repo: SubmissionRepo): WorkflowRun | null {
+    const { stdout, stderr } = $.sync`gh run list --repo ${repo.nameWithOwner} --workflow ${repo.exercise?.workflow ?? 'classroom.yml'} --json workflowName,databaseId,createdAt,status,url --limit 1`;
+    if (stderr) {
+        console.error(stderr);
+        return null;
+    }
+
     try {
-        const { stdout } = $.sync`gh run list --repo ${repo.nameWithOwner} --workflow ${repo.exercise?.workflow ?? 'classroom.yml'} --json workflowName,databaseId,createdAt,status,url --limit 1`;
         return JSON.parse(stdout)?.[0] as WorkflowRun;
     } catch (e) {
         console.error(e);
@@ -52,6 +57,38 @@ export function getPoints(repoWithOwner: string, databaseId: number): Points | n
 
     // no points? possibly a skipped workflow run when the student didn't submit anything yet.
     return null;
+}
+
+/**
+ * Lists the members of an organization using the GitHub CLI.
+ * Returns an array of member logins (usernames).
+ */
+export function listOrganizationMembers(org: string): string[] {
+    const { stdout } = $.sync`gh api "orgs/${org}/members"`;
+    const response: { login: string }[] = JSON.parse(stdout);
+    return response.map(m => m.login);
+}
+
+/**
+ * Lists the pending invitations for an organization using the GitHub CLI.
+ * Returns an array of invited user logins (usernames).
+ */
+export function listPendingInvitations(org: string): string[] {
+    const { stdout } = $.sync`gh api "orgs/${org}/invitations"`;
+    const response: { login: string }[] = JSON.parse(stdout);
+    return response.map(m => m.login);
+}
+
+/**
+ * Adds a user to an organization using the GitHub CLI.
+ * Throws an error if the operation fails.
+ */
+export function addToOrganization(org: string, github: string) {
+    const { stderr, stdout } = $.sync`gh api --method PUT "orgs/${org}/memberships/${github}"`;
+    if (stderr) {
+        console.error(stderr);
+        throw new Error(`Failed to add user ${github} to organization ${org}`);
+    }
 }
 
 /**
